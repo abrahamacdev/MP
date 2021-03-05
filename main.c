@@ -1,6 +1,7 @@
 #include <stdio.h>
+#include "./equipos/equipos.h"
 
 int main() {
-    printf("Hello, World!\n");
+    cargarEquipos();
     return 0;
 }
