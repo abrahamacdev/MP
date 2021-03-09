@@ -10,13 +10,21 @@
         char *nombre;   // Nombre del equipo con 20 caracteres maximo (termina en \0)
     } equipo;
 
+    extern equipo *equiposCargados;
+    extern int numEquipos;
 
     extern int cargarEquipos();
-    void guardarDatoEnEquipo(equipo *, char *, int);
+    extern void mostrarDatosEquipo(equipo *);
+    extern int guardarEquipos();
 
 #endif
 
 #ifndef NOMBRE_ARCHIVO_EQUIPOS
 #define NOMBRE_ARCHIVO_EQUIPOS "/home/abraham/Equipos.txt"
+
+#endif
+
+#ifndef SEPARADOR_ARCHIVO_EQUIPOS
+#define SEPARADOR_ARCHIVO_EQUIPOS '-'
 
 #endif
