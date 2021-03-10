@@ -10,17 +10,32 @@
         char *nombre;   // Nombre del equipo con 20 caracteres maximo (termina en \0)
     } equipo;
 
-    extern equipo *equiposCargados;
-    extern int numEquipos;
+    typedef struct {
+        equipo* equipos;
+        int numEquipos;
+    } vector_equipos;
 
+    extern vector_equipos equiposCargados;
+
+    extern void inicializarEquipos();
     extern int cargarEquipos();
     extern void mostrarDatosEquipo(equipo *);
     extern int guardarEquipos();
 
+    // ----- CRUD -----
+    extern int anadirEquipo(equipo);
+    extern int eliminarEquipo(int);
+    extern int modificarEquipo(int, equipo);
+
+    // --- Read ---
+    extern int buscarEquipoPorId(int);
+    extern int buscarEquipoPorNombre(char *);
+
+
 #endif
 
 #ifndef NOMBRE_ARCHIVO_EQUIPOS
-#define NOMBRE_ARCHIVO_EQUIPOS "/home/abraham/Equipos.txt"
+#define NOMBRE_ARCHIVO_EQUIPOS "/home/abraham/Equipos.txt" // TODO Eliminar
 
 #endif
 

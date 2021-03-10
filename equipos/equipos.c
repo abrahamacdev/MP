@@ -16,12 +16,12 @@
  * Postcondicion:
 */
 
-equipo *equiposCargados;
-int numEquipos;
-
+vector_equipos equiposCargados;
 
 void reestablecerMemVecCadena(int, char **, int *, int *);
 void guardarDatoEnEquipo(equipo *, char *, int);
+char* generarIdEquipo();
+
 
 
 /*
@@ -160,9 +160,12 @@ int cargarEquipos(){
     // Reducimos el tamaño del vector para no desperdiciar memoria
     tempVecEquipos = realloc(tempVecEquipos, sizeof(equipo) * equiposInsertados);
 
-    // Guardamos los equipos en memoria
-    equiposCargados = tempVecEquipos;
-    numEquipos = equiposInsertados;
+    // Guardamos los equipos en #vectorEquipos
+    if (equiposInsertados == 0){
+        tempVecEquipos = NULL;
+    }
+    equiposCargados.equipos = tempVecEquipos;
+    equiposCargados.numEquipos = equiposInsertados;
 
     // Liberamos la memoria de las variables innecesarias
     free(tempCadena);
@@ -170,6 +173,7 @@ int cargarEquipos(){
     // Cerramos el archivo
     fclose(archivo);
 
+    // TODO Eliminar
     printf("Se han cargado %i equipos\n", equiposInsertados);
 
     return 0;
@@ -177,7 +181,7 @@ int cargarEquipos(){
 
 /*
  * Cabecera: Guardamos los equipos recibidos por parametros en el archivo #NOMBRE_ARCHIVO_EQUIPOS
- * Precondicion:
+ * Precondicion: vector_equipos tiene que estar inicializado
  * Postcondicion: 0-> Todo salio bien
  *                1-> Ocurrio un error
 */
@@ -185,18 +189,15 @@ int guardarEquipos(){
 
     FILE *archivo;
 
-    // No se ha llegado a cargar equipo o ingresar por primmera vez ningun equipo
-    if (numEquipos == NULL) return 1;
-
     // No hay equipos que guardar
-    if (numEquipos == 0) return 0;
+    if (equiposCargados.numEquipos == 0) return 0;
 
     // Si ocurre algun error, retornaremos codigo de estado 1
     if((archivo = fopen(NOMBRE_ARCHIVO_EQUIPOS, "w")) == NULL) return 1;
 
     // Iteramos cada equipo existente en el vector
-    for (int i = 0; i <numEquipos ; i++) {
-        equipo *tempEquipo = &equiposCargados[i];
+    for (int i = 0; i <equiposCargados.numEquipos ; i++) {
+        equipo *tempEquipo = &equiposCargados.equipos[i];
 
         // Escribimos el id
         fputs(tempEquipo->id, archivo);
@@ -208,7 +209,7 @@ int guardarEquipos(){
         fputs(tempEquipo->nombre, archivo);
 
         // Comprobamos si quedan mas equipos que guardar para añadir el salto de linea
-        if (i != numEquipos - 1){
+        if (i != equiposCargados.numEquipos - 1){
             fputc('\n', archivo);
         }
     }
@@ -219,6 +220,136 @@ int guardarEquipos(){
     return 0;
 }
 
+
+char* generarIdEquipo(){
+
+    char *ultId;
+    ultId = malloc(sizeof(char) * 2);
+
+    int max = 0;
+
+    // Recorremos el vector de los equipos cargados
+    for (int i = 0; i < equiposCargados.numEquipos; i++) {
+
+        equipo *tempEquipo = &equiposCargados.equipos[i];
+        int tempId = atoi(tempEquipo->id);
+
+        // Nos quedamos con el id del mayor
+        if (tempId > max){
+            max = tempId;
+        }
+    }
+
+    max++;
+
+    // Devolvemos 0X o XX segun convenga
+    if (max > 9){
+        sprintf(ultId, "0%d", max);
+        return ultId;
+    }
+    else {
+        sprintf(ultId, "%d", max);
+        return ultId;
+    }
+}
+
+
+/* ----- CRUD ----- */
+/*
+ * Cabecera: Añade el equipo al archivo
+ * Precondicion: #equipo debe de  estar iniciaizado y contener unicamente el nombre del equipo
+ * Postcondicion:   0->Se ha guardado correctamente
+ *                  1->Ocurrio un error
+*/
+int anadirEquipo(equipo equipo){
+
+    // No puede tener un id ya contenido
+    if (equipo.id != NULL) return 1;
+
+    // El equipo tiene un nombre sin caracteres
+    if (strlen(equipo.nombre) > 0) return 1;
+
+    // Existe un equipo con ese nombre
+    if (buscarEquipoPorNombre(equipo.nombre) != -1) return 1;
+
+
+    // Generammos un id para el equipo
+    equipo.id = generarIdEquipo();
+
+    // Agrandamos el vector de equipos y añadimos el nuevo equipo
+    equiposCargados.numEquipos++;
+    equiposCargados.equipos = realloc(equiposCargados.equipos, sizeof(equipo) * equiposCargados.numEquipos);
+
+    return 0;
+}
+
+
+
+// ----- Read -----
+/*
+ * Cabecera: Busca en #vector_equipos si existe algun equipo con el #id solicitado
+ * Precondicion: El id debe de ser positivo y vectorEquipos inicializado
+ * Postcondicion:   -1->No hay ningun equipo con ese id
+ *                  x->Id del equipo en el vector #equiposCargados
+*/
+int buscarEquipoPorId(int id){
+
+    equipo equiposBuscado;
+
+    // No se ha llegado a cargar equipo o ingresar por primmera vez ningun equipo
+    if (equiposCargados.numEquipos == 0) return -1;
+
+    // Recorremos el vector de los equipos cargados
+    for (int i = 0; i < equiposCargados.numEquipos; i++) {
+
+        equipo *tempEquipo = &equiposCargados.equipos[i];
+
+        if (tempEquipo->id == id){
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+/*
+ * Cabecera: Busca en #vector_equipos si existe algun equipo con el #nombre solicitado
+ * Precondicion: El nombre debe de estar inicializado y vectorEquipos inicializado
+ * Postcondicion:   -1->No hay ningun equipo con ese nombre
+ *                  x->Id del equipo en el vector #equiposCargados
+*/
+int buscarEquipoPorNombre(char *nombre){
+
+    equipo equiposBuscado;
+
+    // No tiene caracteres
+    if (strlen(nombre) == 0) return -1;
+
+    // No se ha llegado a cargar equipo o ingresar por primmera vez ningun equipo
+    if (equiposCargados.numEquipos == 0) return -1;
+
+    // Recorremos el vector de los equipos cargados
+    for (int i = 0; i < equiposCargados.numEquipos; i++) {
+
+        equipo *tempEquipo = &equiposCargados.equipos[i];
+
+        // Comprobamos si los nombres son iguales
+        if (strcmp(nombre, tempEquipo->nombre) == 0){
+            return i;
+        }
+    }
+
+    return -1;
+}
+// ----------------
+
+
+/* ---------------- */
+
+
+
+
+// ----- Debug ----
 /*
  * Cabecera: Muestra la informacion del equipo recibido por parametros
  * Precondicion: #equipo debe de estar inicializada
