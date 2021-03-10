@@ -20,6 +20,7 @@
     extern void inicializarEquipos();
     extern int cargarEquipos();
     extern void mostrarDatosEquipo(equipo *);
+    extern void mostrarDatosTodosEquipo();
     extern int guardarEquipos();
 
     // ----- CRUD -----

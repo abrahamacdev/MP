@@ -225,6 +225,8 @@ char* generarIdEquipo(){
 
     char *ultId;
     ultId = malloc(sizeof(char) * 2);
+    ultId[0] = '0';
+    ultId[1] = '0';
 
     int max = 0;
 
@@ -244,13 +246,13 @@ char* generarIdEquipo(){
 
     // Devolvemos 0X o XX segun convenga
     if (max > 9){
-        sprintf(ultId, "0%d", max);
-        return ultId;
+        sprintf(ultId, "%d", max);
     }
     else {
-        sprintf(ultId, "%d", max);
-        return ultId;
+        ultId[1] = max + '0';
     }
+
+    return ultId;
 }
 
 
@@ -266,8 +268,9 @@ int anadirEquipo(equipo equipo){
     // No puede tener un id ya contenido
     if (equipo.id != NULL) return 1;
 
-    // El equipo tiene un nombre sin caracteres
-    if (strlen(equipo.nombre) > 0) return 1;
+    int lonNombre = strlen(equipo.nombre);
+    // El equipo tiene un nombre sin caracteres o con demasiados caraccteres
+    if (lonNombre == 0 || lonNombre > 20) return 1;
 
     // Existe un equipo con ese nombre
     if (buscarEquipoPorNombre(equipo.nombre) != -1) return 1;
@@ -279,6 +282,7 @@ int anadirEquipo(equipo equipo){
     // Agrandamos el vector de equipos y añadimos el nuevo equipo
     equiposCargados.numEquipos++;
     equiposCargados.equipos = realloc(equiposCargados.equipos, sizeof(equipo) * equiposCargados.numEquipos);
+    equiposCargados.equipos[equiposCargados.numEquipos-1] = equipo;
 
     return 0;
 }
@@ -357,4 +361,11 @@ int buscarEquipoPorNombre(char *nombre){
 */
 void mostrarDatosEquipo(equipo *equipo){
     printf("Equipo -> Id:%s\t\tNombre:%s\n", equipo->id, equipo->nombre);
+}
+
+void mostrarDatosTodosEquipo(){
+    int i;
+    for (i = 0; i < equiposCargados.numEquipos; i++) {
+        mostrarDatosEquipo(&equiposCargados.equipos[i]);
+    }
 }

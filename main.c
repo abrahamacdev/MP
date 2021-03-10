@@ -3,15 +3,15 @@
 #include "./equipos/equipos.h"
 
 void pruebaGuardado(){
-    numEquipos = 2;
-    equiposCargados = malloc(sizeof(equipo) * numEquipos);
+    equiposCargados.numEquipos = 2;
+    equiposCargados.equipos = malloc(sizeof(equipo) * equiposCargados.numEquipos);
 
-    equiposCargados[0] = (equipo) {
+    equiposCargados.equipos[0] = (equipo) {
             .id = "01",
             .nombre = "Cadiz"
     };
 
-    equiposCargados[1] = (equipo) {
+    equiposCargados.equipos[1] = (equipo) {
             .id = "02",
             .nombre = "Malaga"
     };
@@ -21,13 +21,10 @@ void pruebaGuardado(){
 
 int main() {
 
-    pruebaGuardado();
+    //pruebaGuardado();
     cargarEquipos();
 
-    int i;
-    for (i = 0; i < numEquipos; i++) {
-        mostrarDatosEquipo(&equiposCargados[i]);
-    }
+
 
     return 0;
 }
