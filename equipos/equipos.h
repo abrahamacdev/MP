@@ -24,7 +24,7 @@
     extern int guardarEquipos();
 
     // ----- CRUD -----
-    extern int anadirEquipo(equipo);
+    extern int anadirEquipo(equipo *);
     extern int eliminarEquipo(int);
     extern int modificarEquipo(int, equipo);
 

@@ -1,30 +1,54 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "string.h"
 #include "./equipos/equipos.h"
 
-void pruebaGuardado(){
-    equiposCargados.numEquipos = 2;
-    equiposCargados.equipos = malloc(sizeof(equipo) * equiposCargados.numEquipos);
+int test_anadirEquipo() {
 
-    equiposCargados.equipos[0] = (equipo) {
-            .id = "01",
-            .nombre = "Cadiz"
-    };
+    equipo temp;
+    temp.nombre = "Sevilla";
 
-    equiposCargados.equipos[1] = (equipo) {
-            .id = "02",
-            .nombre = "Malaga"
-    };
+    return anadirEquipo(&temp);
+}
 
-    guardarEquipos();
+int test_pruebaBusquedaPorNombre(){
+
+    int idx = buscarEquipoPorNombre("Sevilla");
+
+    return idx > -1 && strcmp(equiposCargados.equipos[idx].nombre, "Sevilla") == 0;
+}
+
+int test_cargar_equipos() {
+
+    cargarEquipos();
+
+    return equiposCargados.numEquipos;
+}
+
+int test_guardar_equipo() {
+
+    return guardarEquipos();
 }
 
 int main() {
 
-    //pruebaGuardado();
-    cargarEquipos();
+    test_cargar_equipos();
 
+    // --- Busqueda del equipo ---
+    int resBusqueda = test_pruebaBusquedaPorNombre();
+    if (resBusqueda == 0) printf("No ha encontrado el equipo\n");
+    else printf("Lo ha encontrado\n");
+    // ---------------------------
 
+    // --- Añadimos el equipo de prueba ---
+    /*test_anadirEquipo();
+    printf("Añadido: %s\n", equiposCargados.equipos[0].id);
+    printf("%s\n", equiposCargados.equipos[0].nombre);*/
+    // --------------------------
+
+    // --- Guardamos los datos en el archivo ---
+    //test_guardar_equipo();
+    // -----------------------------------------
 
     return 0;
 }

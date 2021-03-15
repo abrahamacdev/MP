@@ -23,6 +23,7 @@ void guardarDatoEnEquipo(equipo *, char *, int);
 char* generarIdEquipo();
 
 
+void finalizarCarga(equipo *tempVecEquipos, int equiposInsertados);
 
 /*
  * Cabecera: Preparamos las variabes para trabajar la siguiente cadena
@@ -87,12 +88,18 @@ int cargarEquipos(){
     int continuar = 1;          // 1-> Continuamos || 0->Paramos de iterar
     FILE *archivo;
 
-    // Si ocurre algun error, retornaremos codigo de estado 1
-    if((archivo = fopen(NOMBRE_ARCHIVO_EQUIPOS, "r")) == NULL) return 1;
-
     // Inicializamos los vectores
     tempVecEquipos = (equipo *) malloc(sizeof(equipo) * tamanioVecEquipos);
     tempCadena = (char *) malloc(sizeof(char) * tamanioVecEquipos);
+
+    // Si ocurre algun error, retornaremos codigo de estado 1
+    if((archivo = fopen(NOMBRE_ARCHIVO_EQUIPOS, "r")) == NULL) {
+
+        // Reasignamos el tamananio del vector #tempVecEquipos
+        finalizarCarga(tempVecEquipos, equiposInsertados);
+
+        return 1;
+    };
 
     // Iteraremos hasta que se acabe el archivo
     while (continuar){
@@ -128,7 +135,7 @@ int cargarEquipos(){
         }
 
         // Comprobamos si es un salto de linea o final del archivo
-        else if (tempChar == '\n' || EOF){
+        else if (tempChar == '\n' || tempChar == EOF){
 
             // Guardamos el dato recogido hasta ahora en el equipo correspondiente
             guardarDatoEnEquipo(&tempVecEquipos[equiposInsertados], tempCadena, indiceCampo);
@@ -141,14 +148,17 @@ int cargarEquipos(){
                 tempVecEquipos = realloc(tempVecEquipos, sizeof(equipo) * tamanioVecEquipos);
             }
 
-            // Sumamos el equipo parseado
-            equiposInsertados++;
+            // Comprobamos que halla datos que guardar (evita errores al leer archivo vacio)
+            if (strlen(tempCadena) > 1){
+                // Sumamos el equipo parseado
+                equiposInsertados++;
 
-            // Reestablecemos el indice del campo
-            indiceCampo = 0;
+                // Reestablecemos el indice del campo
+                indiceCampo = 0;
 
-            // Reestablecemos el vector #tempCadena
-            reestablecerMemVecCadena(tamBaseVectores, &tempCadena, &tamanioVecCadena, &caracteresInsertados);
+                // Reestablecemos el vector #tempCadena
+                reestablecerMemVecCadena(tamBaseVectores, &tempCadena, &tamanioVecCadena, &caracteresInsertados);
+            }
 
             // Solo cuando acabemos de leer el archivo pararemmos de iterar
             if (tempChar == EOF){
@@ -157,15 +167,8 @@ int cargarEquipos(){
         }
     }
 
-    // Reducimos el tamaño del vector para no desperdiciar memoria
-    tempVecEquipos = realloc(tempVecEquipos, sizeof(equipo) * equiposInsertados);
-
-    // Guardamos los equipos en #vectorEquipos
-    if (equiposInsertados == 0){
-        tempVecEquipos = NULL;
-    }
-    equiposCargados.equipos = tempVecEquipos;
-    equiposCargados.numEquipos = equiposInsertados;
+    // Reasignamos el tamananio del vector #tempVecEquipos
+    finalizarCarga(tempVecEquipos, equiposInsertados);
 
     // Liberamos la memoria de las variables innecesarias
     free(tempCadena);
@@ -177,6 +180,17 @@ int cargarEquipos(){
     printf("Se han cargado %i equipos\n", equiposInsertados);
 
     return 0;
+}
+
+
+void finalizarCarga(equipo *tempVecEquipos, int equiposInsertados) {
+
+    // Reducimos el tamaño del vector para no desperdiciar memoria
+    tempVecEquipos = realloc(tempVecEquipos, sizeof(equipo) * equiposInsertados);
+
+    // Guardamos los equipos en #vectorEquipos
+    equiposCargados.equipos = tempVecEquipos;
+    equiposCargados.numEquipos = equiposInsertados;
 }
 
 /*
@@ -224,9 +238,10 @@ int guardarEquipos(){
 char* generarIdEquipo(){
 
     char *ultId;
-    ultId = malloc(sizeof(char) * 2);
+    ultId = malloc(sizeof(char) * 3);
     ultId[0] = '0';
     ultId[1] = '0';
+    ultId[2] = '\0';
 
     int max = 0;
 
@@ -234,12 +249,16 @@ char* generarIdEquipo(){
     for (int i = 0; i < equiposCargados.numEquipos; i++) {
 
         equipo *tempEquipo = &equiposCargados.equipos[i];
-        int tempId = atoi(tempEquipo->id);
 
-        // Nos quedamos con el id del mayor
-        if (tempId > max){
-            max = tempId;
+        if (tempEquipo->id != NULL){
+            int tempId = atoi(tempEquipo->id);
+
+            // Nos quedamos con el id del mayor
+            if (tempId > max){
+                max = tempId;
+            }
         }
+
     }
 
     max++;
@@ -263,26 +282,22 @@ char* generarIdEquipo(){
  * Postcondicion:   0->Se ha guardado correctamente
  *                  1->Ocurrio un error
 */
-int anadirEquipo(equipo equipo){
+int anadirEquipo(equipo *equipo){
 
-    // No puede tener un id ya contenido
-    if (equipo.id != NULL) return 1;
-
-    int lonNombre = strlen(equipo.nombre);
+    int lonNombre = strlen(equipo->nombre);
     // El equipo tiene un nombre sin caracteres o con demasiados caraccteres
     if (lonNombre == 0 || lonNombre > 20) return 1;
 
     // Existe un equipo con ese nombre
-    if (buscarEquipoPorNombre(equipo.nombre) != -1) return 1;
-
+    if (buscarEquipoPorNombre(equipo->nombre) != -1) return 1;
 
     // Generammos un id para el equipo
-    equipo.id = generarIdEquipo();
+    equipo->id = generarIdEquipo();
 
     // Agrandamos el vector de equipos y añadimos el nuevo equipo
     equiposCargados.numEquipos++;
     equiposCargados.equipos = realloc(equiposCargados.equipos, sizeof(equipo) * equiposCargados.numEquipos);
-    equiposCargados.equipos[equiposCargados.numEquipos-1] = equipo;
+    equiposCargados.equipos[equiposCargados.numEquipos-1] = *equipo;
 
     return 0;
 }
@@ -337,10 +352,14 @@ int buscarEquipoPorNombre(char *nombre){
 
         equipo *tempEquipo = &equiposCargados.equipos[i];
 
-        // Comprobamos si los nombres son iguales
-        if (strcmp(nombre, tempEquipo->nombre) == 0){
-            return i;
+        if (tempEquipo->id != NULL && strlen(tempEquipo->id) > 0){
+
+            // Comprobamos si los nombres son iguales
+            if (strcmp(nombre, tempEquipo->nombre) == 0){
+                return i;
+            }
         }
+
     }
 
     return -1;
