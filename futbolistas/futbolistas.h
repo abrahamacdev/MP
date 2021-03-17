@@ -15,6 +15,11 @@
         int valoracion;     // Valoracion del jugador (0-10)
     } futbolista;
 
+    typedef struct {
+        futbolista* futbolistas;
+        int numFutbolistas;
+    } vector_futbolistas;
+
     extern void inicializarFutbolistas();   // Cargamos todos los futbolistas a sus correspondientes equipos
     extern int leerFutbolistas();           // Lee los futbolistas del arcchivo
     extern int guardarFutbolistas();        // Guardamos los futbolistas en el archivo
@@ -33,5 +38,6 @@
     // --- Read ---
     extern int buscarFutbolistaPorId(int);
     extern int buscarFutbolistaPorNombre(char *);
+    extern vector_futbolistas buscarFutbolistasPorEquipo(char *);
 
 #endif //MP_FUTBOLISTAS_H

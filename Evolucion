@@ -5,3 +5,5 @@
                 He completado la funcion para buscarEquipos tanto por id como por nombre.
                 Completando la opcion 1 del menu del administrador.
                 He completado la funcion mostrarDatosCompletosTodosEquipos() con la que se listaran los equipos
+                Se puede eliminar a un equipo por su id solicitandolo previamentte al usuario
+                Se puede anadir un nuevo equipo solicitando previamente el nombre de este
