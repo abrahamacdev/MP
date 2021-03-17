@@ -1,0 +1,7 @@
+
+17/03/2021 ->   He creado el fichero de cabecera de futbolistas.h.
+                He modificado el archivo equipos.c para que se guarde/lean los equipos correctamente.
+                He completado la funcion de anadirEquipo().
+                He completado la funcion para buscarEquipos tanto por id como por nombre.
+                Completando la opcion 1 del menu del administrador.
+                He completado la funcion mostrarDatosCompletosTodosEquipos() con la que se listaran los equipos

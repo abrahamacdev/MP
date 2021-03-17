@@ -20,7 +20,7 @@ int test_pruebaBusquedaPorNombre(){
 
 int test_cargar_equipos() {
 
-    cargarEquipos();
+    leerEquipos();
 
     return equiposCargados.numEquipos;
 }
