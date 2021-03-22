@@ -20,13 +20,66 @@ vector_equipos equiposCargados;
 
 void reestablecerMemVecCadena(int, char **, int *, int *);
 void guardarDatoEnEquipo(equipo *, char *, int);
-void finalizarCarga(equipo *, int);
+void finalizarCarga(equipo *, int, char *);
 char* generarIdEquipo();
 
-equipo pedirDatosAnadirEquipo(equipo *);
-char * pedirDatosEliminarEquipo(equipo *);
+void pedirDatosAnadirEquipo(equipo *);
+void pedirDatosEliminarEquipo(equipo *);
+void pedirDatosEditarEquipo(char *, char *);
 
+/*
+ * Cabecera: Convertimos el id de cadena a entero
+ * Precondicion: id debe de estar inicializado
+ * Postcondicion: -1 -> No se ha podido parsear
+ *                >-1 -> Id parseado
+*/
+int idToInt(char *id){
 
+    int lenId = strlen(id);
+    if (lenId > 2){
+        return -1;
+    }
+
+    int i = 0;
+    char temp;
+    while ((temp = id[i]) != '\0'){
+        if (!isdigit(temp)){
+            return -1;
+        }
+        i++;
+    }
+
+    return atoi(id);
+}
+
+/*
+ * Cabecera: Convertimos el id de entero a cadena
+ * Precondicion: id debe de estar inicializado y ser -1<x<100
+ * Postcondicion: NULL -> No se ha podido parsear
+ *                cadena -> Id parseado
+*/
+char * idToChar(int id){
+
+    if (id < 0) return NULL;
+    if (id > 99) return NULL;
+
+    char *parseado;
+    parseado = (char *) malloc(sizeof(char) * 3);
+    parseado[2] = '\0';
+
+    // 0X
+    if(id < 10){
+        parseado[0] = '0';
+        parseado[1] = id + '0';
+    }
+
+    // XX
+    else {
+        sprintf(parseado, "%d", id);
+    }
+
+    return parseado;
+}
 
 /*
  * Cabecera: Preparamos las variabes para trabajar la siguiente cadena
@@ -50,7 +103,7 @@ void reestablecerMemVecCadena(int tamBaseVectores, char **tempCadena, int *taman
  */
 void guardarDatoEnEquipo(equipo *temp, char *dato, int indiceCampo){
 
-    char *dest = malloc(sizeof(char) * strlen(dato));
+    char *dest = malloc(sizeof(char) * strlen(dato) + 1);
     strcpy(dest, dato);
 
     switch (indiceCampo) {
@@ -72,7 +125,7 @@ void guardarDatoEnEquipo(equipo *temp, char *dato, int indiceCampo){
  * Precondicion: tempVecEquipos inicializado y equiposInsertados>-1
  * Postcondicion: Finaliza la inicializacion de los datos
 */
-void finalizarCarga(equipo *tempVecEquipos, int equiposInsertados) {
+void finalizarCarga(equipo *tempVecEquipos, int equiposInsertados, char *tempCadena) {
 
     // Reducimos el tamaño del vector para no desperdiciar memoria
     tempVecEquipos = realloc(tempVecEquipos, sizeof(equipo) * equiposInsertados);
@@ -80,43 +133,34 @@ void finalizarCarga(equipo *tempVecEquipos, int equiposInsertados) {
     // Guardamos los equipos en #vectorEquipos
     equiposCargados.equipos = tempVecEquipos;
     equiposCargados.numEquipos = equiposInsertados;
+
+    // Liberamos la memoria de la cadena
+    free(tempCadena);
 }
 
 char* generarIdEquipo(){
 
     char *ultId;
-    ultId = malloc(sizeof(char) * 3);
-    ultId[0] = '0';
-    ultId[1] = '0';
-    ultId[2] = '\0';
-
     int max = 0;
 
     // Recorremos el vector de los equipos cargados
     for (int i = 0; i < equiposCargados.numEquipos; i++) {
 
         equipo *tempEquipo = &equiposCargados.equipos[i];
+        int tempId = idToInt(tempEquipo->id_equipo);
 
-        if (tempEquipo->id_equipo != NULL){
-            int tempId = atoi(tempEquipo->id_equipo);
-
+        if (tempId != -1){
             // Nos quedamos con el id del mayor
             if (tempId > max){
                 max = tempId;
             }
         }
-
     }
 
     max++;
 
-    // Devolvemos 0X o XX segun convenga
-    if (max > 9){
-        sprintf(ultId, "%d", max);
-    }
-    else {
-        ultId[1] = max + '0';
-    }
+    // Convertimos el id a cadena
+    ultId = idToChar(max);
 
     return ultId;
 }
@@ -124,11 +168,9 @@ char* generarIdEquipo(){
 /*
  * Cabecera: Pedimos los datos del equipo que se añadira
  * Precondicion: debe de haberse cargado los equipos previamente
- * Postcondicion: Devuelve un equipo con el nombre
+ * Postcondicion: Devuelve el equipo con el nombre
 */
-equipo pedirDatosAnadirEquipo(){
-
-    equipo equipo;
+void pedirDatosAnadirEquipo(equipo *equipo){
 
     char nombre[20];
     int continuar = 1;
@@ -149,9 +191,7 @@ equipo pedirDatosAnadirEquipo(){
         }
     }
 
-    equipo.nombre = nombre;
-
-    return equipo;
+    equipo->nombre = nombre;
 }
 
 /*
@@ -159,21 +199,19 @@ equipo pedirDatosAnadirEquipo(){
  * Precondicion: debe de haberse cargado los equipos previamente
  * Postcondicion: Devuelve el id del equipo
 */
-char *pedirDatosEliminarEquipo(){
+void pedirDatosEliminarEquipo(equipo *equipo){
 
-    equipo equipo;
-
-    char *id;
     int continuar = 1;
 
-    id = malloc(sizeof(char) * 2);
+    free(equipo->id_equipo);
+    equipo->id_equipo = malloc(sizeof(char) * 2);
 
     while (continuar){
 
         printf("Introduzca el id del equipo (con dos digitos): ");
-        scanf("%s", id);
+        scanf("%s", equipo->id_equipo);
 
-        int resBus = buscarEquipoPorId(id);
+        int resBus = buscarEquipoPorId(equipo->id_equipo);
 
         // No hay ningun eqquipo con ese id
         if (resBus == -1){
@@ -183,8 +221,57 @@ char *pedirDatosEliminarEquipo(){
             continuar = 0;
         }
     }
+}
 
-    return id;
+/*
+ * Cabecera: Pedimos los datos del equipo que se editara
+ * Precondicion:
+ * Postcondicion: Devuelve el id del equipo y el nombre del equipo nuevo
+*/
+void pedirDatosEditarEquipo(char *idEquipoViejo, char *nombreEquipo){
+
+    int continuar = 1;
+
+    free(idEquipoViejo);
+    free(nombreEquipo);
+    idEquipoViejo = malloc(sizeof(char) * 2);
+    nombreEquipo = malloc(sizeof(char) * 20);
+
+
+    // Pedimos el id del equipo a modificar
+    while (continuar){
+
+        printf("Introduzca el id del equipo a modificar(con dos digitos): ");
+        scanf("%s", idEquipoViejo);
+
+        int resBus = buscarEquipoPorId(idEquipoViejo);
+
+        // No hay ningun eqquipo con ese id
+        if (resBus == -1){
+            printf("No hay ningun equipo con ese id. Por favor introduzca otro\n");
+        }
+        else {
+            continuar = 0;
+        }
+    }
+    continuar = 1;
+
+    // Pedimos el nombre del nuevo equipo
+    while (continuar){
+
+        printf("Introduzca el nombre del equipo (20 digitos maximo): ");
+        scanf("%s", nombreEquipo);
+
+        int resBus = buscarEquipoPorNombre(nombreEquipo);
+
+        // No hay ningun eqquipo con ese id
+        if (resBus != -1){
+            printf("Hay un equipo con ese nombre. Por favor introduzca otro\n");
+        }
+        else {
+            continuar = 0;
+        }
+    }
 }
 
 
@@ -230,7 +317,7 @@ int leerEquipos(){
     if((archivo = fopen(NOMBRE_ARCHIVO_EQUIPOS, "r")) == NULL) {
 
         // Reasignamos el tamananio del vector #tempVecEquipos
-        finalizarCarga(tempVecEquipos, equiposInsertados);
+        finalizarCarga(tempVecEquipos, equiposInsertados, tempCadena);
 
         return 1;
     };
@@ -302,10 +389,7 @@ int leerEquipos(){
     }
 
     // Reasignamos el tamananio del vector #tempVecEquipos
-    finalizarCarga(tempVecEquipos, equiposInsertados);
-
-    // Liberamos la memoria de las variables innecesarias
-    free(tempCadena);
+    finalizarCarga(tempVecEquipos, equiposInsertados, tempCadena);
 
     // Cerramos el archivo
     fclose(archivo);
@@ -401,11 +485,25 @@ void mostrarMenuEquipos(){
             // Eliminar equipo
             case 3:
                 pedirDatosEliminarEquipo(&tempEquipo);
-                eliminarEquipo()
+                if (eliminarEquipo(tempEquipo.id_equipo) == 0){
+                    printf("Se ha eliminado el equipo correctamente\n");
+                }else {
+                    printf("No se ha podido eliminar el equipo\n");
+                }
                 break;
 
             // Editar equipo
             case 4:
+                {
+                    char idEquipoViejo;
+                    char nombreNuevo;
+                    pedirDatosEditarEquipo(&idEquipoViejo, &nombreNuevo);
+                    if (modificarEquipo(&idEquipoViejo, &nombreNuevo) == 0){
+                        printf("Se ha editado el equipo correctamente\n");
+                    }else {
+                        printf("No se ha podido editar el equipo\n");
+                    }
+                }
                 break;
 
             // Listamos los futbolistas
@@ -425,7 +523,7 @@ void mostrarMenuEquipos(){
                 break;
 
             // Volver
-            case 9:
+            default:
                 continuar = 0;
                 break;
         }
@@ -442,22 +540,22 @@ void mostrarMenuEquipos(){
  * Postcondicion:   0->Se ha guardado correctamente
  *                  1->Ocurrio un error
 */
-int anadirEquipo(equipo *equipo){
+int anadirEquipo(equipo *nuevoEquipo){
 
-    int lonNombre = strlen(equipo->nombre);
+    int lonNombre = strlen(nuevoEquipo->nombre);
     // El equipo tiene un nombre sin caracteres o con demasiados caraccteres
     if (lonNombre == 0 || lonNombre > 20) return 1;
 
     // Existe un equipo con ese nombre
-    if (buscarEquipoPorNombre(equipo->nombre) != -1) return 1;
+    if (buscarEquipoPorNombre(nuevoEquipo->nombre) != -1) return 1;
 
     // Generammos un id para el equipo
-    equipo->id_equipo = generarIdEquipo();
+    nuevoEquipo->id_equipo = generarIdEquipo();
 
     // Agrandamos el vector de equipos y añadimos el nuevo equipo
     equiposCargados.numEquipos++;
     equiposCargados.equipos = realloc(equiposCargados.equipos, sizeof(equipo) * equiposCargados.numEquipos);
-    equiposCargados.equipos[equiposCargados.numEquipos-1] = *equipo;
+    equiposCargados.equipos[equiposCargados.numEquipos-1] = *nuevoEquipo;
 
     return 0;
 }
@@ -529,6 +627,37 @@ int buscarEquipoPorNombre(char *nombre){
 }
 // ----------------
 
+// ----- Update -----
+/*
+ * Cabecera: Modifica el equipo que tenga el id recibido por parametros y establece los atributos del equipo recibido por parametros
+ * Precondicion: el id y el nombre del equipo debe de estar inicializados
+ * Postcondicion:   0->Todo salido correctamente
+ *                  1->Ocurrio un error
+*/
+int modificarEquipo(char *idEquipo, char *nombreNuevo){
+
+    int lenIdEquipo = strlen(idEquipo);
+    if (lenIdEquipo > 2){
+        return 1;
+    }
+
+    int lenNombreEquipo = strlen(nombreNuevo);
+    if (lenNombreEquipo > 20){
+        return 1;
+    }
+
+    int idxEquipo = buscarEquipoPorId(idEquipo);
+
+    // El equipo no esta en la base de datos
+    if (idxEquipo == -1) return 1;
+
+    // Cambiamos el nombre del equipo
+    equiposCargados.equipos[idxEquipo].nombre = nombreNuevo;
+
+    return 0;
+}
+// ------------------
+
 // ----- Delete -----
 /*
  * Cabecera: Elimina el equipo que tenga el id recibido por parametros
@@ -539,7 +668,7 @@ int buscarEquipoPorNombre(char *nombre){
 int eliminarEquipo(char *id){
 
     // No tiene la longitud necesaria
-    if (strlen(id) != 2) return 1;
+    if (strlen(id) > 2) return 1;
 
     // Comprobamos que sea un numero el id recibido
     if (!isdigit(id[0]) || isdigit(id[1])) return 1;
@@ -547,9 +676,7 @@ int eliminarEquipo(char *id){
     int resBus = buscarEquipoPorId(id);
 
     // No hay ningun equipo con ese id
-    if (resBus == -1){
-        return 1;
-    }
+    if (resBus == -1) return 1;
 
     // Traemos todos los equipos de adelante hacia atras
     for (int i = resBus; i < equiposCargados.numEquipos-1; i++) {
@@ -602,10 +729,9 @@ void mostrarDatosCompletosTodosEquipos() {
     int j;
     for (i = 0; i < equiposCargados.numEquipos; i++) {
         equipo temp = equiposCargados.equipos[i];
-        printf("--- (%s) %s ---\n", tempEquipo.id_equipo, tempEquipo.nombre);
-        for (j = 0; j < tempEquipo.numFutbolistas; j++) {
-            futbolista tempFut = tempEquipo.jugadores[i];
-            mostrarDatosFutbolista(&tempFut);
+        printf("--- (%s) %s ---\n", temp.id_equipo, temp.nombre);
+        for (j = 0; j < temp.numFutbolistas; j++) {
+            mostrarDatosFutbolista(&temp.jugadores[i]);
         }
         printf("----------------------\n\n");
     }

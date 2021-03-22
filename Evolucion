@@ -4,6 +4,11 @@
                 He completado la funcion de anadirEquipo().
                 He completado la funcion para buscarEquipos tanto por id como por nombre.
                 Completando la opcion 1 del menu del administrador.
-                He completado la funcion mostrarDatosCompletosTodosEquipos() con la que se listaran los equipos
-                Se puede eliminar a un equipo por su id solicitandolo previamentte al usuario
-                Se puede anadir un nuevo equipo solicitando previamente el nombre de este
+                He completado la funcion mostrarDatosCompletosTodosEquipos() con la que se listaran los equipos.
+                Se puede eliminar a un equipo por su id solicitandolo previamentte al usuario.
+                Se puede anadir un nuevo equipo solicitando previamente el nombre de este.
+
+22/03/2021 ->   He realizado algunas modificaciones en el archivo de cabecerad de equipos.h.
+                He estado añadiendo todas las funciones del menu para realizar el CRUD sobre los equipos (aun no esta testeado).
+                He realizado algunas pruebas sobre la funcion de guardar ya que habia fugas de memoria.
+                He creado una carpeta "tests" en la que incluir algunos archivos .c en los que agregare test unitarios de algunas funciones.

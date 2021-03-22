@@ -8,18 +8,21 @@
 #include "../futbolistas/futbolistas.h"
 
     typedef struct {
-        equipo* equipos;
-        int numEquipos;
-    } vector_equipos;
-
-    typedef struct {
         char *id_equipo;               // Id con 2 digitos
         char *nombre;           // Nombre del equipo con 20 caracteres maximo (termina en \0)
         futbolista *jugadores;  // Futbolistas del equipo
         int numFutbolistas;     // Cantidad de futbolistas que hay en el vector *jugadores
     } equipo;
 
+    typedef struct {
+        equipo* equipos;
+        int numEquipos;
+    } vector_equipos;
+
     extern vector_equipos equiposCargados;
+
+    extern int idToInt(char *);
+    extern char *idToChar(int);
 
     extern void inicializarEquipos();   // Inicializa el vector equiposCargados con los datos del correspondiente archivo
     extern int leerEquipos();           // Lee los equipos del archivo
@@ -37,7 +40,7 @@
     extern int eliminarEquipo(char *);
 
     // --- Update ---
-    extern int modificarEquipo(char *, equipo);
+    extern int modificarEquipo(char *, char *);
 
     // --- Read ---
     extern int buscarEquipoPorId(char *);

@@ -5,8 +5,6 @@
 #ifndef MP_FUTBOLISTAS_H
 #define MP_FUTBOLISTAS_H
 
-#include "../equipos/equipos.h"
-
     typedef struct {
         char *id_jugador;   // Id con 2 digitos
         char *id_equipo;    // Id del equipo
