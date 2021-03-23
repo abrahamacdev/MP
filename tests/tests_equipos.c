@@ -51,5 +51,9 @@ int test_cargar_equipos() {
 
 int test_guardar_equipo() {
 
-    return guardarEquipos();
+    int res = guardarEquipos();
+
+    if (res == 1) printf("No se pudo guardar los equipos\n");
+
+    return res;
 }

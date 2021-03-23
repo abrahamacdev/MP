@@ -6,10 +6,16 @@
 
 int main() {
 
+    setbuf(stdout,NULL);
+
+    // --- Otros ---
     //test_idToChar();
     //test_idToInt();
+    // -------------
 
+    // --- Leemos los equipos del archivo ---
     test_cargar_equipos();
+    // --------------------------------------
 
     // --- Busqueda del equipo ---
     /*int resBusqueda = test_pruebaBusquedaPorNombre();
@@ -18,8 +24,10 @@ int main() {
     // ---------------------------
 
     // --- Añadimos el equipo de prueba ---
-    test_anadirEquipo();
+    //test_anadirEquipo();
     // --------------------------
+
+    mostrarMenuEquipos();
 
     // --- Guardamos los datos en el archivo ---
     test_guardar_equipo();

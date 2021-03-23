@@ -172,8 +172,10 @@ char* generarIdEquipo(){
 */
 void pedirDatosAnadirEquipo(equipo *equipo){
 
-    char nombre[20];
+    char *nombre;
     int continuar = 1;
+
+    nombre = malloc(sizeof(char) * 20);
 
     while (continuar){
 
@@ -184,10 +186,11 @@ void pedirDatosAnadirEquipo(equipo *equipo){
 
         // Hay otro eqquipo con ese nombre
         if (resBus > -1){
-            printf("Ya hay un equipo con ese nombre. Por favor, introduzca otro nombre.\n");
+            printf("\nYa hay un equipo con ese nombre. Por favor, introduzca otro nombre.\n");
         }
         else {
             continuar = 0;
+            printf("\n");
         }
     }
 
@@ -203,22 +206,30 @@ void pedirDatosEliminarEquipo(equipo *equipo){
 
     int continuar = 1;
 
-    free(equipo->id_equipo);
     equipo->id_equipo = malloc(sizeof(char) * 2);
+    int tempIdEquipo;
 
     while (continuar){
 
-        printf("Introduzca el id del equipo (con dos digitos): ");
-        scanf("%s", equipo->id_equipo);
+        printf("Introduzca el id del equipo: ");
+        scanf("%i", &tempIdEquipo);
 
-        int resBus = buscarEquipoPorId(equipo->id_equipo);
+        if (tempIdEquipo < 0 || tempIdEquipo > 99){
+            printf("\nId no valido. Por favor introduzca otro.\n");
 
-        // No hay ningun eqquipo con ese id
-        if (resBus == -1){
-            printf("No hay ningun equipo con ese id. Por favor introduzca otro\n");
-        }
-        else {
-            continuar = 0;
+        }else {
+
+            equipo->id_equipo = idToChar(tempIdEquipo);
+
+            int resBus = buscarEquipoPorId(equipo->id_equipo);
+
+            // No hay ningun eqquipo con ese id
+            if (resBus == -1){
+                printf("\nNo hay ningun equipo con ese id. Por favor introduzca otro\n");
+            }
+            else {
+                continuar = 0;
+            }
         }
     }
 }
@@ -410,14 +421,11 @@ int guardarEquipos(){
 
     FILE *archivo;
 
-    // No hay equipos que guardar
-    if (equiposCargados.numEquipos == 0) return 0;
-
     // Si ocurre algun error, retornaremos codigo de estado 1
     if((archivo = fopen(NOMBRE_ARCHIVO_EQUIPOS, "w")) == NULL) return 1;
 
     // Iteramos cada equipo existente en el vector
-    for (int i = 0; i <equiposCargados.numEquipos ; i++) {
+    for (int i = 0; i <equiposCargados.numEquipos; i++) {
         equipo *tempEquipo = &equiposCargados.equipos[i];
 
         // Escribimos el id
@@ -456,44 +464,46 @@ void mostrarMenuEquipos(){
         printf("¿Que desea tratar?\n");
         printf("1. Listar equipos\n2. Añadir equipo\n3. Eliminar equipo\n4. Editar equipo\n");
         printf("5. Listar futbolistas\n6. Añadir futbolista\n7. Eliminar futbolista\n8. Editar futbolista\n");
-        printf("9. Volver");
+        printf("9. Volver\n");
         scanf("%i", &opcionEscogida);
+        printf("\n");
 
         // No ha escogido una opcion valida
         if (opcionEscogida<1 || opcionEscogida>9){
             printf("Opcion no valida, escoja otra\n\n");
         }
 
-        equipo tempEquipo;
+        else {
+            equipo tempEquipo;
 
-        switch (opcionEscogida) {
-            // Listamos los equipos
-            case 1:
-                mostrarDatosCompletosTodosEquipos();
-                break;
+            switch (opcionEscogida) {
+                // Listamos los equipos
+                case 1:
+                    mostrarDatosCompletosTodosEquipos();
+                    break;
 
-            // Añadir equipo
-            case 2:
-                pedirDatosAnadirEquipo(&tempEquipo);
-                if (anadirEquipo(&tempEquipo) == 0){
-                    printf("Se ha añadido el equipo correctamente\n");
-                }else {
-                    printf("No se ha podido añadir el equipo\n");
-                }
-                break;
+                    // Añadir equipo
+                case 2:
+                    pedirDatosAnadirEquipo(&tempEquipo);
+                    if (anadirEquipo(&tempEquipo) == 0){
+                        printf("Se ha añadido el equipo correctamente\n");
+                    }else {
+                        printf("No se ha podido añadir el equipo\n");
+                    }
+                    break;
 
-            // Eliminar equipo
-            case 3:
-                pedirDatosEliminarEquipo(&tempEquipo);
-                if (eliminarEquipo(tempEquipo.id_equipo) == 0){
-                    printf("Se ha eliminado el equipo correctamente\n");
-                }else {
-                    printf("No se ha podido eliminar el equipo\n");
-                }
-                break;
+                    // Eliminar equipo
+                case 3:
+                    pedirDatosEliminarEquipo(&tempEquipo);
+                    if (eliminarEquipo(tempEquipo.id_equipo) == 0){
+                        printf("Se ha eliminado el equipo correctamente\n");
+                    }else {
+                        printf("No se ha podido eliminar el equipo\n");
+                    }
+                    break;
 
-            // Editar equipo
-            case 4:
+                    // Editar equipo
+                case 4:
                 {
                     char idEquipoViejo;
                     char nombreNuevo;
@@ -504,29 +514,32 @@ void mostrarMenuEquipos(){
                         printf("No se ha podido editar el equipo\n");
                     }
                 }
-                break;
+                    break;
 
-            // Listamos los futbolistas
-            case 5:
-                break;
+                    // Listamos los futbolistas
+                case 5:
+                    break;
 
-            // Añadir futbolista
-            case 6:
-                break;
+                    // Añadir futbolista
+                case 6:
+                    break;
 
-            // Eliminar futbolista
-            case 7:
-                break;
+                    // Eliminar futbolista
+                case 7:
+                    break;
 
-            // Editar futbolista
-            case 8:
-                break;
+                    // Editar futbolista
+                case 8:
+                    break;
 
-            // Volver
-            default:
-                continuar = 0;
-                break;
+                    // Volver
+                default:
+                    continuar = 0;
+                    break;
+            }
         }
+
+        printf("\n");
     }
 }
 
@@ -671,7 +684,7 @@ int eliminarEquipo(char *id){
     if (strlen(id) > 2) return 1;
 
     // Comprobamos que sea un numero el id recibido
-    if (!isdigit(id[0]) || isdigit(id[1])) return 1;
+    if (!isdigit(id[0]) || !isdigit(id[1])) return 1;
 
     int resBus = buscarEquipoPorId(id);
 
@@ -684,7 +697,8 @@ int eliminarEquipo(char *id){
     }
 
     // Hacemos el vecctor de equipos un poco mas pequeño
-    realloc(equiposCargados.equipos, sizeof(equipo) * equiposCargados.numEquipos-1);
+    equiposCargados.equipos = realloc(equiposCargados.equipos, sizeof(equipo) * equiposCargados.numEquipos-1);
+    equiposCargados.numEquipos--;
 
     return 0;
 }
@@ -727,12 +741,14 @@ void mostrarDatosTodosEquipo(){
 void mostrarDatosCompletosTodosEquipos() {
     int i;
     int j;
+    printf("***** Equipos *****\n");
     for (i = 0; i < equiposCargados.numEquipos; i++) {
         equipo temp = equiposCargados.equipos[i];
         printf("--- (%s) %s ---\n", temp.id_equipo, temp.nombre);
         for (j = 0; j < temp.numFutbolistas; j++) {
             mostrarDatosFutbolista(&temp.jugadores[i]);
         }
-        printf("----------------------\n\n");
+        printf("----------------------\n");
     }
+    printf("******************\n");
 }

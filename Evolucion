@@ -1,5 +1,5 @@
 
-17/03/2021 ->   He creado el fichero de cabecera de futbolistas.h.
+17/03/2021 (Entregado dia 17/03/2021) ->   He creado el fichero de cabecera de futbolistas.h.
                 He modificado el archivo equipos.c para que se guarde/lean los equipos correctamente.
                 He completado la funcion de anadirEquipo().
                 He completado la funcion para buscarEquipos tanto por id como por nombre.
@@ -12,3 +12,9 @@
                 He estado añadiendo todas las funciones del menu para realizar el CRUD sobre los equipos (aun no esta testeado).
                 He realizado algunas pruebas sobre la funcion de guardar ya que habia fugas de memoria.
                 He creado una carpeta "tests" en la que incluir algunos archivos .c en los que agregare test unitarios de algunas funciones.
+
+23/03/2021 ->   Se puede añadir equipos desde el menu que se le muestra al administrador.
+                Se puede eliminar a un equipo desde el menu que se le muestra al administrador.
+                (Bug) -> Se elimina el equipo pero no se guarda correctamente.
+
+24/03/2021 ->   Bug del guardado resuelto.
