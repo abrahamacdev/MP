@@ -1,33 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "string.h"
 #include "./equipos/equipos.h"
-
-void pruebaGuardado(){
-    numEquipos = 2;
-    equiposCargados = malloc(sizeof(equipo) * numEquipos);
-
-    equiposCargados[0] = (equipo) {
-            .id = "01",
-            .nombre = "Cadiz"
-    };
-
-    equiposCargados[1] = (equipo) {
-            .id = "02",
-            .nombre = "Malaga"
-    };
-
-    guardarEquipos();
-}
+#include "tests/tests_equipos.h"
 
 int main() {
 
-    pruebaGuardado();
-    cargarEquipos();
+    //test_idToChar();
+    //test_idToInt();
 
-    int i;
-    for (i = 0; i < numEquipos; i++) {
-        mostrarDatosEquipo(&equiposCargados[i]);
-    }
+    test_cargar_equipos();
+
+    // --- Busqueda del equipo ---
+    /*int resBusqueda = test_pruebaBusquedaPorNombre();
+    if (resBusqueda == 0) printf("No ha encontrado el equipo\n");
+    else printf("Lo ha encontrado\n");*/
+    // ---------------------------
+
+    // --- Añadimos el equipo de prueba ---
+    test_anadirEquipo();
+    // --------------------------
+
+    // --- Guardamos los datos en el archivo ---
+    test_guardar_equipo();
+    // -----------------------------------------
 
     return 0;
 }
