@@ -8,10 +8,9 @@
 #include "../futbolistas/futbolistas.h"
 
     typedef struct {
-        char *id_equipo;               // Id con 2 digitos
-        char *nombre;           // Nombre del equipo con 20 caracteres maximo (termina en \0)
-        futbolista *jugadores;  // Futbolistas del equipo
-        int numFutbolistas;     // Cantidad de futbolistas que hay en el vector *jugadores
+        char *id_equipo;                // Id con 2 digitos
+        char *nombre;                   // Nombre del equipo con 20 caracteres maximo (termina en \0)
+        vector_futbolistas *vectorFutbolistas;  // Futbolistas del equipo
     } equipo;
 
     typedef struct {

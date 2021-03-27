@@ -18,3 +18,7 @@
                 (Bug) -> Se elimina el equipo pero no se guarda correctamente.
 
 24/03/2021 ->   Bug del guardado resuelto.
+
+27/03/2021 ->   Se ha añadido las funciones para cargar y guardar los datos de los futbolistas (aun no testeadas).
+                Se ha añadido la funcion para añadir un futbolista nuevo (aun no testeada).
+                Se ha añadido la funcion para buscar un futbolista por su nombre/id (aun no testeada).

@@ -12,4 +12,4 @@
     extern void test_idToChar();
     extern void test_idToInt();
 
-#endif //MP_TESTS_EQUIPOS_H
+#endif MP_TESTS_EQUIPOS_H

@@ -4,9 +4,15 @@
 #include "./equipos/equipos.h"
 #include "tests/tests_equipos.h"
 
-int main() {
+void test_futbolistas(){
 
-    setbuf(stdout,NULL);
+    leerEquipos();
+
+    f
+
+}
+
+void test_equipos(){
 
     // --- Otros ---
     //test_idToChar();
@@ -32,6 +38,15 @@ int main() {
     // --- Guardamos los datos en el archivo ---
     test_guardar_equipo();
     // -----------------------------------------
+}
+
+int main() {
+
+    setbuf(stdout,NULL);
+
+    //test_equipos();
+
+    //test_futbolistas();
 
     return 0;
 }
