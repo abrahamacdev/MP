@@ -31,8 +31,8 @@ void test_anadirEquipo() {
 
     int res = anadirEquipo(&temp);
 
-    if (res == 0) printf("Se ha añadido el equipo correctamente");
-    else printf("NO se ha añadido el equipo");
+    if (res == 0) printf("Se ha añadido el equipo correctamente\n");
+    else printf("NO se ha añadido el equipo\n");
 }
 
 int test_pruebaBusquedaPorNombre(){

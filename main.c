@@ -3,19 +3,23 @@
 #include "string.h"
 #include "./equipos/equipos.h"
 #include "tests/tests_equipos.h"
+#include "tests/tests_futbolistas.h"
+#include "cronista.h"
 
-int main() {
+void test_futbolistas(){
 
-    setbuf(stdout,NULL);
+    // --- Añadimos un futbolista de prueba ---
+    //test_anadir_futbolista();
+    // -------------------
+
+}
+
+void test_equipos(){
 
     // --- Otros ---
     //test_idToChar();
     //test_idToInt();
     // -------------
-
-    // --- Leemos los equipos del archivo ---
-    test_cargar_equipos();
-    // --------------------------------------
 
     // --- Busqueda del equipo ---
     /*int resBusqueda = test_pruebaBusquedaPorNombre();
@@ -28,10 +32,19 @@ int main() {
     // --------------------------
 
     mostrarMenuEquipos();
+}
 
-    // --- Guardamos los datos en el archivo ---
-    test_guardar_equipo();
-    // -----------------------------------------
+int main() {
+
+    setbuf(stdout,NULL);
+
+    inicializarCronista();
+
+    test_equipos();
+
+    //test_futbolistas();
+
+    almacenarCronista();
 
     return 0;
 }
