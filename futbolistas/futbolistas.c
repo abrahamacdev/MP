@@ -11,10 +11,39 @@
 
 
 
-void reestablecerMemVecCadena(int, char **, int *, int *);
-void guardarDatoEnFutbolista(futbolista *temp, char *dato, int indiceCampo);
+int idMaxFutbolista = 0;
 
 
+/**
+ * Cabecera: Comprueba si la cadena recibida por parametros es un numero
+ * Precondicion: cad inicializada
+ * Postcondicion:   0-> La cadena no es un numero
+ *                  1-> La cadena es un numero
+ */
+int esNumero(char *cad){
+    for (int i = 0; i < strlen(cad); ++i) {
+        if (!isdigit(cad[i])) return 0;
+    }
+    return 1;
+}
+
+/**
+ * Cabecera: Comprueba si la cadena introducida esta vacia
+ * Precondicion: La cadena tiene que estar inicializada
+ * Postcondicion: 0->No esta vacia
+ *                1->Esta vacia
+ */
+int cadenaVacia(char *cad){
+
+    int len = strlen(cad);
+    if (cad == NULL || len == 0) return 1;
+
+    for (int i = 0; i < len; ++i) {
+        if (cad[i] != '\0') return 0;
+    }
+
+    return 1;
+}
 
 /*
  * Cabecera: Recibe los datos de un futbolista y dependiendo del indice del campo
@@ -31,9 +60,15 @@ void guardarDatoEnFutbolista(futbolista *temp, char *dato, int indiceCampo){
 
     switch (indiceCampo) {
 
-        // Es el id del equipo
+        // Es el id del jugador
         case 0:
             temp->id_jugador = dest;
+
+            // Guardamos el mayor id de los jugadores
+            {
+                int idJug = idToInt(dest);
+                if (idJug > idMaxFutbolista) idMaxFutbolista = idJug;
+            }
             break;
 
         // Es el id del equipo
@@ -48,14 +83,14 @@ void guardarDatoEnFutbolista(futbolista *temp, char *dato, int indiceCampo){
 
         // Es el precio del futbolista
         case 3:
-            if (isdigit(dest)){
+            if (esNumero(dest)){
                 temp->precio = atoi(dest);
             }
             break;
 
         // Es la valoracion del futbolista
         case 4:
-            if (isdigit(dest)){
+            if (esNumero(dest)){
                 temp->valoracion = atoi(dest);
             }
             break;
@@ -74,6 +109,177 @@ void reestablecerMemVecCadena(int tamBaseVectores, char **tempCadena, int *taman
     (*tempCadena) = (char *) malloc(sizeof(char) * (*tamanioVecCadena));
 }
 
+/*
+ * Cabecera: Generamos un nuevo id para un futbolista
+ * Precondicion:
+ * Postcondicion: Devuelve el id del futbolista
+*/
+char * generarIdFutbolista(){
+    idMaxFutbolista++;
+    return idToChar(idMaxFutbolista);
+}
+
+/*
+ * Cabecera: Traemos los elementos de un vector de adelante hacia atras
+ * Precondicion: vector inicializado, fin > comienzo >= 0
+ * Postcondicion: Devuelve el id del futbolista
+*/
+void reordenarElementosVector(futbolista *vector, int comienzo, int fin){
+
+    if(comienzo > fin) return;
+    if (comienzo < 0) return;
+    if (vector == NULL) return;
+
+    for (int i = comienzo; i < fin - 1; ++i) {
+        vector[i] = vector[i+1];
+    }
+}
+
+/**
+ * Cabecera: Solicita los datos necesarios para anadir a un futbolista
+ * Precondicion:
+ * Postcondicion: Devuelve el futbolista con los datos necesarios
+ */
+void pedirDatosAnadirFutbolista(futbolista *fut){
+
+    int continuar = 1;
+    equipo equipo;
+    char *nomEquipo;
+
+    fut->nombre = malloc(sizeof(char) * 20);
+
+    // Pedimos el nombre del jugador
+    while (continuar){
+
+        printf("Introduzca el nombre del jugador (hasta 20 caracteres)\n");
+        scanf("%20s", fut->nombre);
+
+        // Comprobamos que la cadena no este vacia
+        if (cadenaVacia(fut->nombre)){
+            printf("Por favor, introduzca un nombre\n");
+        }
+
+        // Comprobamos que no exista un jugdor con ese nombre
+        else {
+
+            futbolista * temp = buscarFutbolistaPorNombre(fut->nombre);
+            if (temp != NULL) printf("Ya existe un jugador con ese nombre, por favor introduzca otro\n");
+            else continuar = 0;
+        }
+    }
+
+    // Pedimos el nombre del equipo
+    continuar = 1;
+    nomEquipo = malloc(sizeof(char) * 21);
+    while (continuar){
+
+        printf("Introduzca el nombre del equipo al que pertenecera\n");
+        scanf("%s", nomEquipo);
+
+        // Comprobamos que haya introducido un nombre de equipo valido
+        if (cadenaVacia(nomEquipo)){
+            printf("Por favor, introduzca un nombre\n");
+        }
+
+        // Comprobamos que exista un equipo con ese nombre
+        else {
+            int indxEquipo = buscarEquipoPorNombre(nomEquipo);
+            if (indxEquipo == -1) printf("El equipo no existe. Por favor, introduzca otro\n");
+            else {
+                fut->id_equipo = equiposCargados.equipos[indxEquipo].id_equipo;
+                continuar = 0;
+            }
+        }
+    }
+
+
+    // Pedimos el precio del jugador
+    continuar = 1;
+    while (continuar){
+
+        printf("Introduzca el precio del jugador (>0)\n");
+        scanf("%i", &fut->precio);
+
+        // Comprobamos que haya introducido un precio valido
+        if (fut->precio <= 0){
+            printf("Por favor, introduzca un precio valido\n");
+        }
+        else continuar = 0;
+    }
+
+
+}
+
+/**
+ * Cabecera: Solicita los datos necesarios para eliminar a un futbolista
+ * Precondicion:
+ * Postcondicion: Devuelve el futbolista con los datos necesarios
+ */
+void pedirDatosEliminarFutbolista(futbolista *fut){
+
+    int continuar = 1;
+
+    fut->nombre = malloc(sizeof(char) * 21);
+
+    // Pedimos el nombre del jugador
+    while (continuar){
+
+        printf("Introduzca el nombre del jugador (hasta 20 caracteres)\n");
+        scanf("%20s", fut->nombre);
+
+        // Comprobamos que la cadena no este vacia
+        if (cadenaVacia(fut->nombre)){
+            printf("Por favor, introduzca un nombre\n");
+        }
+
+            // Comprobamos que no exista un jugdor con ese nombre
+        else {
+
+            futbolista *temp = buscarFutbolistaPorNombre(fut->nombre);
+            if (temp == NULL) printf("Introduzca el nombre de otro jugador\n");
+            else {
+                continuar = 0;
+            }
+        }
+    }
+}
+
+/**
+ * Cabecera: Solicita los datos necesarios para mostrar los futbolistas de un equipo
+ * Precondicion:
+ * Postcondicion: Devuelve el equipo con los datos necesarios
+ */
+void pedirDatosMostrarFutbolistas(equipo *eq){
+
+    int continuar = 1;
+
+    eq->nombre = malloc(sizeof(char) * 21);
+
+    // Pedimos el nombre del jugador
+    while (continuar){
+
+        printf("Introduzca el nombre del equipo\n");
+        scanf("%20s", eq->nombre);
+
+        // Comprobamos que la cadena no este vacia
+        if (cadenaVacia(eq->nombre)){
+            printf("Por favor, introduzca un nombre\n");
+        }
+
+            // Comprobamos que no exista un jugdor con ese nombre
+        else {
+
+            int idx = buscarEquipoPorNombre(eq->nombre);
+            if (idx == -1) printf("No existe un equipo con ese nombre\n");
+            else {
+                continuar = 0;
+
+                // Guardamos el id del equipo
+                eq->id_equipo = equiposCargados.equipos[idx].id_equipo;
+            }
+        }
+    }
+}
 
 
 
@@ -147,42 +353,19 @@ int leerFutbolistas(){
         }
 
         // Comprobamos si es un salto de linea o final del archivo
-        else if (tempChar == '\n' || tempChar == EOF){
+        else if(tempChar == '\n' || tempChar == EOF){
 
             // Guardamos el dato recogido hasta ahora en el futbolista correspondiente
             guardarDatoEnFutbolista(&tempFutbolista, tempCadena, indiceCampo);
 
-            // Comprobamos que halla datos que guardar (evita errores al leer archivo vacio)
-            if (strlen(tempCadena) > 1){
+            // Reestablecemos el vector #tempCadena
+            reestablecerMemVecCadena(tamBaseVectores, &tempCadena, &tamanioVecCadena, &caracteresInsertados);
 
-                // Reestablecemos el indice del campo
-                indiceCampo = 0;
+            // Reestablecemos el indice del campo
+            indiceCampo = 0;
 
-                // Reestablecemos el vector #tempCadena
-                reestablecerMemVecCadena(tamBaseVectores, &tempCadena, &tamanioVecCadena, &caracteresInsertados);
-            }
-
-            // Buscamos el equipo al que pertenece el jugador y lo añadimos a su vector
-            int idEquipo = buscarEquipoPorId(tempFutbolista.id_equipo);
-            if (idEquipo != -1){
-
-                equipo tempEquipo = equiposCargados.equipos[idEquipo];
-                int numFutbolistas = tempEquipo.vectorFutbolistas->numFutbolistas;
-
-                // Es la primera vez que añadimos futbolistas al vector
-                if (numFutbolistas == 0){
-                    tempEquipo.vectorFutbolistas->futbolistas = malloc(sizeof(vector_futbolistas));
-                }
-
-                // Agrandamos el vector de futbolistas del equipo
-                else {
-                    tempEquipo.vectorFutbolistas->futbolistas = realloc(tempEquipo.vectorFutbolistas->futbolistas, sizeof(vector_futbolistas) * (numFutbolistas+1));
-                }
-
-                // Añadimos el futbolista al vector
-                tempEquipo.vectorFutbolistas->futbolistas[numFutbolistas] = tempFutbolista;
-                tempEquipo.vectorFutbolistas->numFutbolistas++;
-            }
+            // AÑadimos al futbolista a su respectivo equipo
+            anadirFutbolistaConModo(&tempFutbolista, 1);
 
             // Solo cuando acabemos de leer el archivo pararemmos de iterar
             if (tempChar == EOF){
@@ -216,9 +399,9 @@ int guardarFutbolistas(){
         equipo *tempEquipo = &equiposCargados.equipos[i];
 
         // Iteramos cada futbolista del equipo
-        for (int j = 0; j < tempEquipo->vectorFutbolistas->numFutbolistas; j++) {
+        for (int j = 0; j < tempEquipo->vectorFutbolistas.numFutbolistas; j++) {
 
-            futbolista *tempFutbolista = &tempEquipo->vectorFutbolistas->futbolistas[j];
+            futbolista *tempFutbolista = &tempEquipo->vectorFutbolistas.futbolistas[j];
 
             // Escribimos el id del futbolista
             fputs(tempFutbolista->id_jugador, archivo);
@@ -248,7 +431,7 @@ int guardarFutbolistas(){
             fprintf(archivo, "%i", tempFutbolista->valoracion);
 
             // Comprobamos si quedan mas futbolistas que guardar para añadir el salto de linea
-            if (j != tempEquipo->vectorFutbolistas->numFutbolistas - 1){
+            if (j != tempEquipo->vectorFutbolistas.numFutbolistas - 1){
                 fputc('\n', archivo);
             }
         }
@@ -273,10 +456,29 @@ int guardarFutbolistas(){
  *      1-> Ocurrio un error
 */
 int anadirFutbolista(futbolista *fut){
+    return anadirFutbolistaConModo(fut, 0);
+}
+
+/*
+ * Cabecera: Añade el futbolista al sistema
+ * Precondicion: futbolista debe de estar inicializado y el modo debe de estar entre 0-1 (0: Nuevo, 1: Leyendo de archivo)
+ * Postcondicion:
+ *      0-> Todo salio segun lo esperado
+ *      1-> Ocurrio un error
+*/
+int anadirFutbolistaConModo(futbolista *fut, int modo){
+    equipo *equipo;
 
     // Id del equipo no valido
     int idxEquipo = buscarEquipoPorId(fut->id_equipo);
     if (idxEquipo == -1) return 1;
+    equipo = &equiposCargados.equipos[idxEquipo];
+
+    // El equipo no admite mas futbolistas
+    if (equipo->vectorFutbolistas.numFutbolistas == MAX_FUTBOLISTAS_POR_EQUIPO) return 1;
+
+    // Nombre no valido
+    if (fut->nombre == NULL || strlen(fut->nombre) > 20) return 1;
 
     // Ya existe otro jugador con ese id o nombre
     futbolista *futPorNombre = buscarFutbolistaPorNombre(fut->nombre);
@@ -284,10 +486,33 @@ int anadirFutbolista(futbolista *fut){
     futbolista *futPorId = buscarFutbolistaPorId(fut->id_jugador);
     if (futPorId != NULL) return 1;
 
-    // Comprobamos que no se halla llegado al numero maximo de futbolistas por equipo
+    // No tiene un precio valido
+    if (fut->precio < 1) return 1;
 
+    // Añadimos algunos datos necesarios para el futbolista
+    fut->valoracion = 0;
 
+    // Hay que generar un id para el jugador
+    if (modo == 0){
+        fut->id_jugador = generarIdFutbolista();
+    }
+
+    // No habia futbolistas en el vector, lo inicializamos
+    if (equipo->vectorFutbolistas.numFutbolistas == 0){
+        equipo->vectorFutbolistas.futbolistas = malloc(sizeof(futbolista));
+    }
+        // Agrandamos el vector
+    else {
+        equipo->vectorFutbolistas.futbolistas = realloc(equipo->vectorFutbolistas.futbolistas, sizeof(futbolista) * equipo->vectorFutbolistas.numFutbolistas + 1);
+    }
+
+    // Añadimos al futbolista al equipo
+    equipo->vectorFutbolistas.futbolistas[equipo->vectorFutbolistas.numFutbolistas] = *fut;
+    equipo->vectorFutbolistas.numFutbolistas++;
+
+    return 0;
 }
+
 
 
 // --- Read ---
@@ -304,13 +529,13 @@ futbolista * buscarFutbolistaPorId(char *id){
     if (equiposCargados.numEquipos == 0) return NULL;
 
     // El id no tiene 2 digitos
-    if (strlen(id) != 2) return NULL;
+    if (id == NULL || strlen(id) != 2) return NULL;
 
     // Recorremos el vector de los equipos cargados
     for (int i = 0; i < equiposCargados.numEquipos; i++) {
 
         // Recorremos los jugadores del equipo
-        vector_futbolistas *vectorFutbolistas = equiposCargados.equipos[i].vectorFutbolistas;
+        vector_futbolistas *vectorFutbolistas = &equiposCargados.equipos[i].vectorFutbolistas;
         for (int j = 0; j < vectorFutbolistas->numFutbolistas; j++) {
 
             futbolista *tempFutbolista = &vectorFutbolistas->futbolistas[j];
@@ -338,13 +563,13 @@ futbolista * buscarFutbolistaPorNombre(char *nombre){
     if (equiposCargados.numEquipos == 0) return NULL;
 
     // Nombre sin caracteres
-    if (strlen(nombre) == 0) return NULL;
+    if (nombre == NULL || strlen(nombre) == 0) return NULL;
 
     // Recorremos el vector de los equipos cargados
     for (int i = 0; i < equiposCargados.numEquipos; i++) {
 
         // Recorremos los jugadores del equipo
-        vector_futbolistas *vectorFutbolistas = equiposCargados.equipos[i].vectorFutbolistas;
+        vector_futbolistas *vectorFutbolistas = &equiposCargados.equipos[i].vectorFutbolistas;
         for (int j = 0; j < vectorFutbolistas->numFutbolistas; j++) {
 
             futbolista *tempFutbolista = &vectorFutbolistas->futbolistas[j];
@@ -360,6 +585,36 @@ futbolista * buscarFutbolistaPorNombre(char *nombre){
 }
 
 
+// --- Delete ---
+/*
+ * Cabecera: Elimina el futbolista que tenga el nombre recibido por parametros
+ * Precondicion: el id debe de estar inicializado
+ * Postcondicion:
+ *      0-> Todo salio segun lo esperado
+ *      1-> Ocurrio un error
+*/
+int eliminarFutbolistaPorNombre(char *nombre){
+
+    // Comprobamos si la cadena es valida
+    if (nombre == NULL || cadenaVacia(nombre)) return 1;
+
+    for (int i = 0; i < equiposCargados.numEquipos; ++i) {
+        equipo *tempEquipo = &equiposCargados.equipos[i];
+        for (int j = 0; j < tempEquipo->vectorFutbolistas.numFutbolistas; ++j) {
+            futbolista *tempFutbolista = &tempEquipo->vectorFutbolistas.futbolistas[j];
+
+            // Comprobamos si los ids coinciden
+            if (strcmp(tempFutbolista->nombre, nombre) == 0){
+                reordenarElementosVector(tempEquipo->vectorFutbolistas.futbolistas, j, tempEquipo->vectorFutbolistas.numFutbolistas);
+                tempEquipo->vectorFutbolistas.numFutbolistas--;
+                tempEquipo->vectorFutbolistas.futbolistas = realloc(tempEquipo->vectorFutbolistas.futbolistas, sizeof(futbolista) * tempEquipo->vectorFutbolistas.numFutbolistas);
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
 
 
 
@@ -372,14 +627,17 @@ futbolista * buscarFutbolistaPorNombre(char *nombre){
 void mostrarDatosFutbolista(futbolista *futbolista){
 
     int indxEquipo = buscarEquipoPorId(futbolista->id_equipo);
-    char *nombreEquipo = "N.E";
+    char *sinEquipo = "N.E";
+    char *nombreEquipo;
 
     // Guardamos el nombre del equipo para mostrarlo
     if (indxEquipo != -1){
         equipo *tempEquipo = &equiposCargados.equipos[indxEquipo];
-        nombreEquipo = realloc(nombreEquipo, sizeof(char) * strlen(tempEquipo->nombre) + 1);
+        nombreEquipo = malloc(sizeof(char) * strlen(tempEquipo->nombre) + 1);
         strcpy(nombreEquipo, tempEquipo->nombre);
+        printf("(%s) - Equipo: %s - Nombre: %s - Precio: %i - Valoracion: %i\n", futbolista->id_jugador, nombreEquipo, futbolista->nombre, futbolista->precio, futbolista->valoracion);
     }
-
-    printf("(%s) - Equipo: %s - Nombre: %s - Precio: %i - Valoracion: %i", futbolista->id_jugador, futbolista->id_equipo, futbolista->nombre, futbolista->precio, futbolista->valoracion);
+    else {
+        printf("(%s) - Equipo: %s - Nombre: %s - Precio: %i - Valoracion: %i\n", futbolista->id_jugador, sinEquipo, futbolista->nombre, futbolista->precio, futbolista->valoracion);
+    }
 }

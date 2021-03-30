@@ -5,30 +5,36 @@
 #ifndef MP_FUTBOLISTAS_H
 #define MP_FUTBOLISTAS_H
 
-    typedef struct {
-        char *id_jugador;   // Id con 2 digitos
-        char *id_equipo;    // Id del equipo
-        char *nombre;       // Nombre del jugador con 20 caracteres
-        int precio;       // Precio del futbolista
-        int valoracion;     // Valoracion del jugador (0-10)
-    } futbolista;
+    #include "../estructuras.h"
 
-    typedef struct {
-        futbolista* futbolistas;
-        int numFutbolistas;
-    } vector_futbolistas;
+    extern int idMaxFutbolista;         // Servira como "cache" a la hora de asignar nuevos ids a los jugadores
 
     extern void inicializarFutbolistas();   // Cargamos todos los futbolistas a sus correspondientes equipos
     extern int leerFutbolistas();           // Lee los futbolistas del arcchivo
     extern int guardarFutbolistas();        // Guardamos los futbolistas en el archivo
     extern void mostrarDatosFutbolista(futbolista *);   // Muestra los datos del futtbolista recibido por parametros
+    extern void reestablecerMemVecCadena(int, char **, int *, int *);
+    extern void guardarDatoEnFutbolista(futbolista *temp, char *dato, int indiceCampo);
+    extern char * generarIdFutbolista();
+    extern int esNumero(char *);            // Comprueba si la cadena recibida por parametros se pude considerar un numero
+    extern int cadenaVacia(char *);         // Comprueba si la ccadena recibida esta vacia
+    extern void reordenarElementosVector(futbolista *, int, int);   // Reordena los elementos de un vector despues de haber sufrido eliminaciones
+
+    // --- Menu ---
+    void pedirDatosAnadirFutbolista(futbolista *);
+    void pedirDatosEliminarFutbolista(futbolista *);
+    void pedirDatosEditarFutbolista(futbolista *, futbolista *);
+    void pedirDatosMostrarFutbolistas(equipo *);
+    // ------------
+
 
     // ----- CRUD -----
     // --- Create ---
     extern int anadirFutbolista(futbolista *);
+    extern int anadirFutbolistaConModo(futbolista *, int);      // El modo nos servira para abreviar a la hora de leer los futbolistas
 
     // --- Delete ---
-    extern int eliminarFutbolista(int);
+    extern int eliminarFutbolistaPorNombre(char *);
 
     // --- Update ---
     extern int modificarFutbolista(int, futbolista *);

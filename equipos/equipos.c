@@ -6,6 +6,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "ctype.h"
+#include "../futbolistas/futbolistas.h"
 
 #include "equipos.h"
 
@@ -17,11 +18,6 @@
 */
 
 vector_equipos equiposCargados;
-
-void reestablecerMemVecCadena(int, char **, int *, int *);
-void guardarDatoEnEquipo(equipo *, char *, int);
-void finalizarCarga(equipo *, int, char *);
-char* generarIdEquipo();
 
 void pedirDatosAnadirEquipo(equipo *);
 void pedirDatosEliminarEquipo(equipo *);
@@ -81,18 +77,6 @@ char * idToChar(int id){
     }
 
     return parseado;
-}
-
-/*
- * Cabecera: Preparamos las variabes para trabajar la siguiente cadena
- * Precondicion:
- * Postcondicion: Reinicia las variabes sus valores iniciales
-*/
-void reestablecerMemVecCadena(int tamBaseVectores, char **tempCadena, int *tamanioVecCadena, int *caracteresInsertados) {
-    (*caracteresInsertados) = 0;
-    (*tamanioVecCadena) = tamBaseVectores;
-    free((*tempCadena));
-    (*tempCadena) = (char *) malloc(sizeof(char) * (*tamanioVecCadena));
 }
 
 /*
@@ -326,6 +310,8 @@ int leerEquipos(){
     tempVecEquipos = (equipo *) malloc(sizeof(equipo) * tamanioVecEquipos);
     tempCadena = (char *) malloc(sizeof(char) * tamanioVecEquipos);
 
+    equipo tempEquipo;
+
     // Si ocurre algun error, retornaremos codigo de estado 1
     if((archivo = fopen(NOMBRE_ARCHIVO_EQUIPOS, "r")) == NULL) {
 
@@ -359,7 +345,7 @@ int leerEquipos(){
         else if (tempChar == SEPARADOR_ARCHIVO_EQUIPOS){
 
             // Guardamos el dato recogido hasta ahora en el equipo correspondiente
-            guardarDatoEnEquipo(&tempVecEquipos[equiposInsertados], tempCadena, indiceCampo);
+            guardarDatoEnEquipo(&tempEquipo, tempCadena, indiceCampo);
 
             // Los siguientes datos correspondenn con un campo nuevo
             indiceCampo++;
@@ -372,7 +358,16 @@ int leerEquipos(){
         else if (tempChar == '\n' || tempChar == EOF){
 
             // Guardamos el dato recogido hasta ahora en el equipo correspondiente
-            guardarDatoEnEquipo(&tempVecEquipos[equiposInsertados], tempCadena, indiceCampo);
+            guardarDatoEnEquipo(&tempEquipo, tempCadena, indiceCampo);
+
+            // Inicializamos el vector de futbolistas
+            vector_futbolistas vectorFutbolistas = {
+                    .numFutbolistas = 0
+            };
+            tempEquipo.vectorFutbolistas = vectorFutbolistas;
+
+            // Guardamos el equipo leido en el vector
+            tempVecEquipos[equiposInsertados] = tempEquipo;
 
             // Comprobamos que quede mas espacio en el vector de equipos
             if (equiposInsertados == tamanioVecEquipos - 1){
@@ -456,7 +451,7 @@ int guardarEquipos(){
  * Precondicion:
  * Postcondicion:
 */
-void mostrarMenuEquipos(){
+void menuEquiposAdministrador(){
 
     int continuar = 1;
     int opcionEscogida;
@@ -477,6 +472,7 @@ void mostrarMenuEquipos(){
 
         else {
             equipo tempEquipo;
+            futbolista tempFutbolista;
 
             switch (opcionEscogida) {
                 // Listamos los equipos
@@ -518,19 +514,28 @@ void mostrarMenuEquipos(){
                 }
                     break;
 
-                    // Listamos los futbolistas
+                    // Listamos los futbolistas de un equipo
                 case 5:
-                    // TODO Continuar
+                    pedirDatosMostrarFutbolistas(&tempEquipo);
+                    {
+                        int idx = buscarEquipoPorId(tempEquipo.id_equipo);
+                        equipo *eq = &equiposCargados.equipos[idx];
+                        mostrarDatosCompletosEquipo(eq);
+                    }
                     break;
 
                     // Añadir futbolista
                 case 6:
-                    // TODO Continuar
+                    pedirDatosAnadirFutbolista(&tempFutbolista);
+                    if (anadirFutbolista(&tempFutbolista)) printf("No se ha podido añadir al futbolista\n");
+                    else printf("Se ha añadido al futbolista correctamente\n");
                     break;
 
                     // Eliminar futbolista
                 case 7:
-                    // TODO Continuar
+                    pedirDatosEliminarFutbolista(&tempFutbolista);
+                    if (eliminarFutbolistaPorNombre(tempFutbolista.nombre)) printf("No se ha podido eliminar al futbolista\n");
+                    else printf("Se ha eliminado al futbolista correctamente\n");
                     break;
 
                     // Editar futbolista
@@ -571,6 +576,12 @@ int anadirEquipo(equipo *nuevoEquipo){
     // Generammos un id para el equipo
     nuevoEquipo->id_equipo = generarIdEquipo();
 
+    // Inicializamos el vector de futbolistas
+    vector_futbolistas vectorFutbolistas = {
+            .numFutbolistas = 0
+    };
+    nuevoEquipo->vectorFutbolistas = vectorFutbolistas;
+
     // Agrandamos el vector de equipos y añadimos el nuevo equipo
     equiposCargados.numEquipos++;
     equiposCargados.equipos = realloc(equiposCargados.equipos, sizeof(equipo) * equiposCargados.numEquipos);
@@ -595,7 +606,7 @@ int buscarEquipoPorId(char *id){
     if (equiposCargados.numEquipos == 0) return -1;
 
     // El id no tiene 2 digitos
-    if (strlen(id) != 2) return -1;
+    if (id == NULL || strlen(id) != 2) return -1;
 
     // Recorremos el vector de los equipos cargados
     for (int i = 0; i < equiposCargados.numEquipos; i++) {
@@ -740,6 +751,19 @@ void mostrarDatosTodosEquipo(){
 }
 
 /*
+ * Cabecera: Muestra la informacion completa del equipo recibido por parametros
+ * Precondicion: #equipo debe de estar inicializado
+ * Postcondicion: Se muestra la informacion del equipo junto con sus futbolistas
+*/
+void mostrarDatosCompletosEquipo(equipo *equipo){
+    printf("--- (%s) %s ---\n", equipo->id_equipo, equipo->nombre);
+    for (int j = 0; j < equipo->vectorFutbolistas.numFutbolistas; j++) {
+        mostrarDatosFutbolista(&equipo->vectorFutbolistas.futbolistas[j]);
+    }
+    printf("----------------------\n");
+}
+
+/*
  * Cabecera: Muestra la informacion de ttodos los equipos junto con sus futbolistas
  * Precondicion: #equiposCargados debe de estar inicializada
  * Postcondicion: Se muestra la informacion de todos los equipos junto con sus futbolistas
@@ -749,10 +773,10 @@ void mostrarDatosCompletosTodosEquipos() {
     int j;
     printf("***** Equipos *****\n");
     for (i = 0; i < equiposCargados.numEquipos; i++) {
-        equipo temp = equiposCargados.equipos[i];
-        printf("--- (%s) %s ---\n", temp.id_equipo, temp.nombre);
-        for (j = 0; j < temp.numFutbolistas; j++) {
-            mostrarDatosFutbolista(&temp.vectorFutbolistas[i]);
+        equipo *temp = &equiposCargados.equipos[i];
+        printf("--- (%s) %s ---\n", temp->id_equipo, temp->nombre);
+        for (j = 0; j < temp->vectorFutbolistas.numFutbolistas; j++) {
+            mostrarDatosFutbolista(&temp->vectorFutbolistas.futbolistas[j]);
         }
         printf("----------------------\n");
     }
