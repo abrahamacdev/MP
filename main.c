@@ -31,7 +31,9 @@ void test_equipos(){
     //test_anadirEquipo();
     // --------------------------
 
-    mostrarMenuEquipos();
+    //mostrarMenuEquipos();
+
+    menuCronista();
 }
 
 int main() {

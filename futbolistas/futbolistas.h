@@ -21,10 +21,10 @@
     extern void reordenarElementosVector(futbolista *, int, int);   // Reordena los elementos de un vector despues de haber sufrido eliminaciones
 
     // --- Menu ---
-    void pedirDatosAnadirFutbolista(futbolista *);
-    void pedirDatosEliminarFutbolista(futbolista *);
-    void pedirDatosEditarFutbolista(futbolista *, futbolista *);
-    void pedirDatosMostrarFutbolistas(equipo *);
+    extern void pedirDatosAnadirFutbolista(futbolista *);
+    extern void pedirDatosEliminarFutbolista(futbolista *);
+    extern void pedirDatosEditarFutbolista(char **, futbolista *);
+    extern void pedirDatosMostrarFutbolistas(equipo *);
     // ------------
 
 
@@ -37,7 +37,7 @@
     extern int eliminarFutbolistaPorNombre(char *);
 
     // --- Update ---
-    extern int modificarFutbolista(int, futbolista *);
+    extern int modificarFutbolista(char *, futbolista *);
 
     // --- Read ---
     extern futbolista * buscarFutbolistaPorId(char *);

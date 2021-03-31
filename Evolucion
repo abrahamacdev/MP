@@ -30,3 +30,8 @@
                 Aparentemente se realizan bien las funciones de añadir/eliminar/mostrar futbolista/s.
                 * Falta completar la funcion de edicion de futbolistas y el menu del modulo cronista (mas sencillo).
                 Estoy reventado.
+
+31/03/2021 ->   Se ha añadido la funcion para pedir los datos del futbolista a modificar.
+                Aparentemente, opcion 1 del modulo "Administrador" acabado.
+                No esta comprobado del todo pero se realiza el crud bien completamente.
+                Acabado el menu cronista.
