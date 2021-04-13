@@ -5,7 +5,7 @@
 #ifndef MP_FUTBOLISTAS_H
 #define MP_FUTBOLISTAS_H
 
-    #include "../estructuras.h"
+    #include "../estructuras_cronista.h"
 
     extern int idMaxFutbolista;         // Servira como "cache" a la hora de asignar nuevos ids a los jugadores
 
@@ -47,7 +47,7 @@
 #endif //MP_FUTBOLISTAS_H
 
 #ifndef NOMBRE_ARCHIVO_FUTBOLISTAS
-#define NOMBRE_ARCHIVO_FUTBOLISTAS "/home/abraham/Futbolistas.txt" // TODO Eliminar
+#define NOMBRE_ARCHIVO_FUTBOLISTAS "./Futbolistas.txt"
 
 #endif
 

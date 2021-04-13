@@ -145,7 +145,7 @@ void almacenarCronista(){
  * Precondicion:
  * Postcondicion:
  */
-void menuCronista() {
+void menu_cronista() {
 
     int continuar = 1;
     int opcion = -1;

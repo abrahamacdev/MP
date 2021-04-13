@@ -7,7 +7,7 @@
 
     void inicializarCronista();     // Inicializa el modulo "cronista"
     void almacenarCronista();       // Salva la informacion del modulo
-    void menuCronista();            // Muestra el menu del cronista
+    void menu_cronista();            // Muestra el menu del cronista
     void mostrarMenuEquipos();      // Muestra la opcion 1 del menu de "Administrador"
 
 #endif //MP_CRONISTA_H

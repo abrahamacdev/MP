@@ -403,7 +403,7 @@ int leerEquipos(){
     fclose(archivo);
 
     // TODO Eliminar
-    printf("Se han cargado %i equipos\n", equiposInsertados);
+    //printf("Se han cargado %i equipos\n", equiposInsertados);
 
     return 0;
 }
