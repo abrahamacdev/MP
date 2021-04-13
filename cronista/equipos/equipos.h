@@ -5,7 +5,7 @@
 #ifndef MP_EQUIPOS_H
 #define MP_EQUIPOS_H
 
-    #include "../estructuras.h"
+    #include "../estructuras_cronista.h"
 
     extern vector_equipos equiposCargados;
 
@@ -42,7 +42,7 @@
 #endif
 
 #ifndef NOMBRE_ARCHIVO_EQUIPOS
-#define NOMBRE_ARCHIVO_EQUIPOS "/home/abraham/Equipos.txt" // TODO Eliminar
+#define NOMBRE_ARCHIVO_EQUIPOS "./Equipos.txt"
 
 #endif
 

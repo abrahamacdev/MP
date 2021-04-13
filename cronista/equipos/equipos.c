@@ -403,7 +403,7 @@ int leerEquipos(){
     fclose(archivo);
 
     // TODO Eliminar
-    printf("Se han cargado %i equipos\n", equiposInsertados);
+    //printf("Se han cargado %i equipos\n", equiposInsertados);
 
     return 0;
 }
@@ -540,7 +540,12 @@ void menuEquiposAdministrador(){
 
                     // Editar futbolista
                 case 8:
-                    // TODO Continuar
+                    {
+                        char *nombreViejo = NULL;
+                        pedirDatosEditarFutbolista(&nombreViejo, &tempFutbolista);
+                        if (modificarFutbolista(nombreViejo, &tempFutbolista) == 1) printf("No se ha podido modificar al futbolista\n");
+                        else printf("Se ha realizado la modificacion correctamente\n");
+                    }
                     break;
 
                     // Volver
@@ -745,9 +750,14 @@ void mostrarDatosEquipo(equipo *equipo){
 */
 void mostrarDatosTodosEquipo(){
     int i;
+    printf("***** Equipos *****\n");
     for (i = 0; i < equiposCargados.numEquipos; i++) {
         mostrarDatosEquipo(&equiposCargados.equipos[i]);
+
+        if (i != equiposCargados.numEquipos - 1) printf("\n");
+
     }
+    printf("******************\n");
 }
 
 /*
@@ -779,6 +789,8 @@ void mostrarDatosCompletosTodosEquipos() {
             mostrarDatosFutbolista(&temp->vectorFutbolistas.futbolistas[j]);
         }
         printf("----------------------\n");
+
+        if (i != equiposCargados.numEquipos - 1) printf("\n");
     }
     printf("******************\n");
 }

@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "string.h"
-#include "./equipos/equipos.h"
-#include "tests/tests_equipos.h"
-#include "tests/tests_futbolistas.h"
-#include "cronista.h"
+#include "cronista/equipos/equipos.h"
+#include "cronista/tests/tests_equipos.h"
+#include "cronista/tests/tests_futbolistas.h"
+#include "cronista/cronista.h"
 
 void test_futbolistas(){
 
@@ -31,7 +31,9 @@ void test_equipos(){
     //test_anadirEquipo();
     // --------------------------
 
-    mostrarMenuEquipos();
+    //mostrarMenuEquipos();
+
+    menu_cronista();
 }
 
 int main() {
@@ -40,9 +42,8 @@ int main() {
 
     inicializarCronista();
 
-    test_equipos();
-
-    //test_futbolistas();
+    //menuEquiposAdministrador();
+    menu_cronista();
 
     almacenarCronista();
 

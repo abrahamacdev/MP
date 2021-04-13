@@ -281,6 +281,70 @@ void pedirDatosMostrarFutbolistas(equipo *eq){
     }
 }
 
+/**
+ * Cabecera: Solicita los datos necesarios para editar a un futbolista
+ * Precondicion:
+ * Postcondicion: Devuelve el futbolista con los datos necesarios ademas del nombre viejo del futbolista
+ */
+void pedirDatosEditarFutbolista(char **nombreViejo, futbolista *nuevoFutbolista){
+
+    int continuar = 1;
+
+    nuevoFutbolista->nombre = malloc(sizeof(char) * 21);
+    *nombreViejo = malloc(sizeof(char) * 21);
+
+    while (continuar){
+
+        printf("Introduzca el nombre del jugador a modificar\n");
+        scanf("%20s", *nombreViejo);
+
+        // Comprobamos que la cadena no este vacia
+        if (cadenaVacia(*nombreViejo)){
+            printf("Por favor, introduzca un nombre\n");
+        }
+
+        // Comprobamos que exista un jugdor con ese nombre
+        else {
+
+            futbolista *temp = buscarFutbolistaPorNombre(*nombreViejo);
+            if (temp == NULL) printf("No existe un futbolista con ese nombre\n");
+            else continuar = 0;
+        }
+    }
+
+    continuar = 1;
+    while (continuar){
+
+        printf("Introduzca el nuevo nombre del futbolista\n");
+        scanf("%20s", nuevoFutbolista->nombre);
+
+        // Comprobamos que la cadena no este vacia
+        if (cadenaVacia(nuevoFutbolista->nombre)){
+            printf("Por favor, introduzca un nombre\n");
+        }
+
+        // Comprobamos que no exista un jugdor con ese nombre
+        else {
+
+            futbolista *temp = buscarFutbolistaPorNombre(nuevoFutbolista->nombre);
+            if (temp != NULL) printf("Ya existe un futbolista con ese nombre\n");
+            else continuar = 0;
+        }
+    }
+
+    continuar = 1;
+    while (continuar){
+
+        printf("Introduzca el nuevo precio del futbolista (> 0)\n");
+        scanf("%i", &nuevoFutbolista->precio);
+
+        // Comprobamos que el precio sea >0
+        if (nuevoFutbolista->precio < 1){
+            printf("Por favor, introduzca un precio > 0\n");
+        }
+        else continuar = 0;
+    }
+}
 
 
 void inicializarFutbolistas(){
@@ -480,6 +544,11 @@ int anadirFutbolistaConModo(futbolista *fut, int modo){
     // Nombre no valido
     if (fut->nombre == NULL || strlen(fut->nombre) > 20) return 1;
 
+    // Hay que generar un id para el jugador
+    if (modo == 0){
+        fut->id_jugador = generarIdFutbolista();
+    }
+
     // Ya existe otro jugador con ese id o nombre
     futbolista *futPorNombre = buscarFutbolistaPorNombre(fut->nombre);
     if (futPorNombre != NULL) return 1;
@@ -492,23 +561,51 @@ int anadirFutbolistaConModo(futbolista *fut, int modo){
     // Añadimos algunos datos necesarios para el futbolista
     fut->valoracion = 0;
 
-    // Hay que generar un id para el jugador
-    if (modo == 0){
-        fut->id_jugador = generarIdFutbolista();
-    }
-
     // No habia futbolistas en el vector, lo inicializamos
     if (equipo->vectorFutbolistas.numFutbolistas == 0){
         equipo->vectorFutbolistas.futbolistas = malloc(sizeof(futbolista));
     }
-        // Agrandamos el vector
+
+    // Agrandamos el vector
     else {
-        equipo->vectorFutbolistas.futbolistas = realloc(equipo->vectorFutbolistas.futbolistas, sizeof(futbolista) * equipo->vectorFutbolistas.numFutbolistas + 1);
+        equipo->vectorFutbolistas.futbolistas = realloc(equipo->vectorFutbolistas.futbolistas, sizeof(futbolista) * (equipo->vectorFutbolistas.numFutbolistas + 1));
     }
 
     // Añadimos al futbolista al equipo
-    equipo->vectorFutbolistas.futbolistas[equipo->vectorFutbolistas.numFutbolistas] = *fut;
+   equipo->vectorFutbolistas.futbolistas[equipo->vectorFutbolistas.numFutbolistas] = *fut;
     equipo->vectorFutbolistas.numFutbolistas++;
+
+    return 0;
+}
+
+
+/*
+ * Cabecera: Actualiza los datos del futbolista
+ * Precondicion: futbolistaViejo debe de estar inicializado y tener nombre y futbolistaNuevo tiene que tener inicializado: nombre, precio
+ * Postcondicion:
+ *      0-> Todo salio segun lo esperado
+ *      1-> Ocurrio un error
+*/
+int modificarFutbolista(char *nombreFutbolistaViejo, futbolista *futbolistaNuevo){
+
+    // Comprobamos que el nombreFutbolistaViejo sea valido
+    if (nombreFutbolistaViejo == NULL || strlen(nombreFutbolistaViejo) == 0) return 1;
+
+    // Comprobamos que el nombre y el precio del futbolista nuevo sean validos
+    if (futbolistaNuevo->nombre == NULL || strlen(futbolistaNuevo->nombre) == 0 || futbolistaNuevo->precio < 0) return 1;
+
+    // Buscamos la instancia del futbolista
+    futbolista *tempFut = buscarFutbolistaPorNombre(nombreFutbolistaViejo);
+    if (tempFut == NULL) return 1;
+
+    // Guardamos los datos nuevos
+    tempFut->nombre = realloc(tempFut->nombre, sizeof(char) * strlen(futbolistaNuevo->nombre) + 1);
+    strcpy(tempFut->nombre, futbolistaNuevo->nombre);
+    tempFut->precio = futbolistaNuevo->precio;
+
+    if (futbolistaNuevo->valoracion >= 0 && futbolistaNuevo->valoracion <= 10){
+        tempFut->valoracion = futbolistaNuevo->valoracion;
+    }
 
     return 0;
 }
@@ -615,6 +712,7 @@ int eliminarFutbolistaPorNombre(char *nombre){
 
     return 1;
 }
+
 
 
 

@@ -5,7 +5,7 @@
 #ifndef MP_FUTBOLISTAS_H
 #define MP_FUTBOLISTAS_H
 
-    #include "../estructuras.h"
+    #include "../estructuras_cronista.h"
 
     extern int idMaxFutbolista;         // Servira como "cache" a la hora de asignar nuevos ids a los jugadores
 
@@ -21,10 +21,10 @@
     extern void reordenarElementosVector(futbolista *, int, int);   // Reordena los elementos de un vector despues de haber sufrido eliminaciones
 
     // --- Menu ---
-    void pedirDatosAnadirFutbolista(futbolista *);
-    void pedirDatosEliminarFutbolista(futbolista *);
-    void pedirDatosEditarFutbolista(futbolista *, futbolista *);
-    void pedirDatosMostrarFutbolistas(equipo *);
+    extern void pedirDatosAnadirFutbolista(futbolista *);
+    extern void pedirDatosEliminarFutbolista(futbolista *);
+    extern void pedirDatosEditarFutbolista(char **, futbolista *);
+    extern void pedirDatosMostrarFutbolistas(equipo *);
     // ------------
 
 
@@ -37,7 +37,7 @@
     extern int eliminarFutbolistaPorNombre(char *);
 
     // --- Update ---
-    extern int modificarFutbolista(int, futbolista *);
+    extern int modificarFutbolista(char *, futbolista *);
 
     // --- Read ---
     extern futbolista * buscarFutbolistaPorId(char *);
@@ -47,7 +47,7 @@
 #endif //MP_FUTBOLISTAS_H
 
 #ifndef NOMBRE_ARCHIVO_FUTBOLISTAS
-#define NOMBRE_ARCHIVO_FUTBOLISTAS "/home/abraham/Futbolistas.txt" // TODO Eliminar
+#define NOMBRE_ARCHIVO_FUTBOLISTAS "./Futbolistas.txt"
 
 #endif
 
